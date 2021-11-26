@@ -25,9 +25,9 @@ const router = new VueRouter({
       path: "/dashboard",
       name: "AdminDashboard",
       component: AdminDashboard,
-      meta: {
-      isLogged: true
-      }
+      // meta: {
+      //   isLogged: true
+      // }
     }
   
   ]

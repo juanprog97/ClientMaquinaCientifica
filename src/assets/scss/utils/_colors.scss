@@ -3,12 +3,13 @@ $colors:(
         color-400: hsl(212, 93%, 78%),
         color-500: hsl(212, 100%,88%),
         color-600: hsl(212, 43%, 65%),
-
+        color-800: hsl(211, 34%, 59%),
         color-700: hsl(212, 43%, 25%),
         
     ),
     secondary:(
-        white: hsl(0, 0%, 100%)
+        white: hsl(0, 0%, 100%),
+        grey: hsla(0, 0%, 31%, 0.705),
     )
    
 

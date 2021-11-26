@@ -40,7 +40,8 @@ import logoImage from '../components/svg/logoImage.vue'
     height:  100vh;
     background-color: var(--clr-primary-color-400) ;
     .containerLogin{
-        display: block;
+        display: grid;
+        place-items: center;
         background-color: var(--clr-primary-color-500);
         padding: 5em;
         border-radius:  1em;
@@ -59,6 +60,9 @@ import logoImage from '../components/svg/logoImage.vue'
             padding: 0em 0.2em;
             height:14em;
             border-radius: 1.2em;
+            justify-self: center;
+            width: 17em;
+            border: 3px solid var( --clr-primary-color-700);
             p:first-child{
                 padding-top:0.4em;
             }
@@ -98,7 +102,9 @@ import logoImage from '../components/svg/logoImage.vue'
                 border-radius: 1em;
                 color: var(--clr-secondary-white);
                 font-size: 1.2em;
+                cursor: pointer;
                 transition: 0.12s ease-in background-color;
+                box-shadow: 0px 5px 1px 0px var( --clr-primary-color-700);
                 &:active{
                     transition: 0.12s ease-out background-color;
                     background-color: var( --clr-primary-color-700);
