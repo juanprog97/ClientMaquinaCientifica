@@ -1,5 +1,14 @@
 <template>
   <div id="wrapperDashboard">
+    <modal-component
+      @closeModalRegistrar="modalOptionRegister"
+      v-if="modalRegister"
+    ></modal-component>
+    <modal-detalles
+      v-if="modalDetalles"
+      @closeModalDetalles="modalOptionDetalles"
+      v-bind:infoUser="userSelected"
+    ></modal-detalles>
     <nav class="options">
       <button type="option-admin" id="logout">
         <svg
@@ -51,7 +60,13 @@
           </svg>
         </button>
       </div>
-      <button type="option-admin" id="crearUsuarioButton">Crear usuario</button>
+      <button
+        type="option-admin"
+        id="crearUsuarioButton"
+        @click="modalOptionRegister"
+      >
+        Crear usuario
+      </button>
     </nav>
     <div class="containerTable">
       <table class="headerTable" cellspacing="0" cellpadding="">
@@ -73,8 +88,40 @@
               <td>
                 {{ data.sesionActual }}
               </td>
-              <td>Editar</td>
-              <td>Eliminar</td>
+              <td>
+                <button
+                  type="buttonControl"
+                  id="edit"
+                  @click="selectedUser(index)"
+                >
+                  <svg
+                    fill="#ffff"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="24px"
+                    height="24px"
+                  >
+                    <path
+                      d="M 18.414062 2 C 18.158062 2 17.902031 2.0979687 17.707031 2.2929688 L 15.707031 4.2929688 L 14.292969 5.7070312 L 3 17 L 3 21 L 7 21 L 21.707031 6.2929688 C 22.098031 5.9019687 22.098031 5.2689063 21.707031 4.8789062 L 19.121094 2.2929688 C 18.926094 2.0979687 18.670063 2 18.414062 2 z M 18.414062 4.4140625 L 19.585938 5.5859375 L 18.292969 6.8789062 L 17.121094 5.7070312 L 18.414062 4.4140625 z M 15.707031 7.1210938 L 16.878906 8.2929688 L 6.171875 19 L 5 19 L 5 17.828125 L 15.707031 7.1210938 z"
+                    />
+                  </svg>
+                </button>
+              </td>
+              <td>
+                <button type="buttonControl">
+                  <svg
+                    fill="#ffff"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="30px"
+                    height="30px"
+                  >
+                    <path
+                      d="M 10 2 L 9 3 L 4 3 L 4 5 L 5 5 L 5 20 C 5 20.522222 5.1913289 21.05461 5.5683594 21.431641 C 5.9453899 21.808671 6.4777778 22 7 22 L 17 22 C 17.522222 22 18.05461 21.808671 18.431641 21.431641 C 18.808671 21.05461 19 20.522222 19 20 L 19 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 7 5 L 17 5 L 17 20 L 7 20 L 7 5 z M 9 7 L 9 18 L 11 18 L 11 7 L 9 7 z M 13 7 L 13 18 L 15 18 L 15 7 L 13 7 z"
+                    />
+                  </svg>
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -84,9 +131,13 @@
 </template>
 
 <script>
+import ModalRegistro from "../components/ModalRegistro.vue";
+import ModalDetalles from "../components/ModalInfoUser.vue";
 export default {
   data() {
     return {
+      modalRegister: false,
+      modalDetalles: true,
       dataUser: [
         {
           id: 1,
@@ -139,7 +190,24 @@ export default {
           sesionActual: "Session4",
         },
       ],
+      userSelected: null,
     };
+  },
+  methods: {
+    modalOptionRegister() {
+      this.modalRegister = !this.modalRegister;
+    },
+    modalOptionDetalles() {
+      this.modalDetalles = !this.modalDetalles;
+    },
+    selectedUser(index) {
+      this.userSelected = this.dataUser[index];
+      this.modalOptionDetalles();
+    },
+  },
+  components: {
+    "modal-component": ModalRegistro,
+    "modal-detalles": ModalDetalles,
   },
 };
 </script>
@@ -164,9 +232,8 @@ export default {
   width: 100%;
   height: auto;
   background-color: var(--clr-primary-color-400);
-  padding: 2em 0em;
+  padding: 1em 0em;
   overflow-y: hidden;
-
   nav.options {
     display: flex;
     flex-direction: row;
@@ -301,6 +368,24 @@ export default {
             border-right: 0;
             border-left: 0;
             padding: 0.6em;
+            button[type="buttonControl"] {
+              transform: scale(1);
+              cursor: pointer;
+              background: var(--clr-primary-color-700);
+              border-radius: 5px;
+              border: none;
+              padding: 0.2em;
+              transition: 0.18s ease-in background-color;
+              &:active {
+                background-color: var(--clr-primary-color-800);
+                transition: 0.18s ease-out background-color;
+              }
+              &#edit {
+                transform: scale(1.2);
+              }
+              svg {
+              }
+            }
           }
         }
       }
