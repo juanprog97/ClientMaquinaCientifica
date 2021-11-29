@@ -5,23 +5,59 @@
       <label style="font-weight: bold">Acceso Administrador</label>
       <form class="loginForm" action="">
         <p for="textUser">Usuario</p>
-        <input id="textUser" type="text" />
+        <input id="textUser" type="text" v-model="user" />
         <p for="textUser">Contraseña</p>
-        <input id="textUser" type="password" />
+        <input id="textUser" type="password" v-model="password" />
+        <p style="color: #800000; font-size: 0.8em">{{ noteError }}</p>
       </form>
 
-      <button id="buttonA">Entrar</button>
+      <button id="buttonA" @click="login">Entrar</button>
     </div>
   </div>
 </template>
 
 <script>
 import logoImage from "../components/svg/logoImage.vue";
+import { VUE_APP_LOGIN_ADMIN } from "../store";
+import axios from "axios";
+import Vue from "vue";
 
 export default {
-  components: { logoImage },
+  data() {
+    return {
+      user: "",
+      password: "",
+      noteError: "",
+    };
+  },
 
-  component: {
+  methods: {
+    async login() {
+      let url = process.env.VUE_APP_API_URL + VUE_APP_LOGIN_ADMIN;
+
+      let body = {
+        username: this.user,
+        password: this.password,
+      };
+      await axios
+        .post(url, body)
+        .then((response) => {
+          console.log(response.message);
+        })
+        .catch((error) => {
+          switch (error.response.status) {
+            case 403:
+              this.noteError = "Credenciales incorrectas";
+              break;
+
+            case 503:
+              this.noteError = "Error en el servidor";
+              break;
+          }
+        });
+    },
+  },
+  components: {
     "logo-image": logoImage,
   },
 };
