@@ -8,3 +8,4 @@ export const VUE_APP_LOGIN_ADMIN = "adminlogin";
 //Data User
 export const VUE_APP_LIST_USER = "api/admin/list";
 export const VUE_APP_ADD_USER = "api/admin/addUser";
+export const VUE_APP_TIME = "api/admin/date";

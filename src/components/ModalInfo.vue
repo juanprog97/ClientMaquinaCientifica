@@ -7,29 +7,28 @@
       </div>
       <div name="contentModal">
         <p>
-          Lorem Ipsum is simply dummy text of the printing and typesetting
-          industry. Lorem Ipsum has been the industry's standard dummy text ever
-          since the 1500s, when an unknown printer took a galley of type and
-          scrambled it to make a type specimen book. It has survived not only
-          five centuries, but also the leap into electronic typesetting,
-          remaining essentially unchanged. It was popularised in the 1960s with
-          the release of Letraset sheets containing Lorem Ipsum passages, and
-          more recently with desktop publishing software like Aldus PageMaker
-          including versions of Lorem Ipsum.
+          La “Máquina Científica” es una situación problema STEM que implica el
+          uso de mecanismos físicos al construir Máquinas de Rube Goldberg. Esta
+          situación lúdica se puede emplear para propiciar el pensamiento
+          científico y la comprensión de mecanismos físicos y otros
+          funcionamientos cognitivos. Este escenario puede resultar atractivo
+          tanto para niños como para personas mayores. Diviértete y aprende con
+          la “Máquina Científica”.
         </p>
         <label>Créditos</label>
-        <p>Jose Julian Kenji Lopez Takegami - Lider Projecto</p>
-        <p>Jose Julian Kenji Lopez Takegami - Lider Projecto</p>
+        <p>Directora - Marlenny Guevara Guerrero</p>
+        <p>Codirector - Jairo Andres Montes Gonzáles</p>
+        <p>Estudiante - José Julián Kenji López Takegami</p>
+        <p>Voz - Lina Maria Martínez Velasco</p>
+        <p>Desarrollador Software - Desdev by Juan Miguel Cardona A</p>
+        <p>Desarrollador Software - Desdev by Juan Miguel Cardona A</p>
         <p>
-          Lorem Ipsum is simply dummy text of the printing and typesetting
-          industry. Lorem Ipsum has been the industry's standard dummy text ever
-          since the 1500s, when an unknown printer took a galley of type and
-          scrambled it to make a type specimen book. It has survived not only
-          five centuries, but also the leap into electronic typesetting,
-          remaining essentially unchanged. It was popularised in the 1960s with
-          the release of Letraset sheets containing Lorem Ipsum passages, and
-          more recently with desktop publishing software like Aldus PageMaker
-          including versions of Lorem Ipsum.
+          Música -
+          <a
+            target="_blank"
+            href="https://wowsound.com/product/w-o-w-sound-starter-pack/"
+            >WOW Sound Starter Pack</a
+          >
         </p>
       </div>
 

@@ -15,6 +15,7 @@
     ></loader>
     <modal-component
       @closeModalRegistrar="modalOptionRegister"
+      @registroUsuario="usuarioRegistrado"
       v-if="modalRegister"
     ></modal-component>
     <modal-detalles
@@ -204,6 +205,7 @@ export default {
         this.dataUser = response.data;
       })
       .catch((err) => {
+        console.log(err);
         switch (err.response.status) {
           case 503:
             console.log("error SERVER");
@@ -240,12 +242,12 @@ export default {
           this.stateLoading = false;
         });
     },
-
+    usuarioRegistrado() {
+      this.modalOptionRegister();
+      this.updateList();
+    },
     modalOptionRegister() {
       this.modalRegister = !this.modalRegister;
-      if (this.modalRegister == false) {
-        this.updateList();
-      }
     },
     modalOptionDetalles() {
       this.modalDetalles = !this.modalDetalles;
