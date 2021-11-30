@@ -1,5 +1,18 @@
 <template>
   <div id="wrapperModalTemplate">
+    <loader
+      v-if="stateLoading"
+      object="#5286ff"
+      color1="#ffffff"
+      color2="#17fd3d"
+      size="12"
+      speed="2.1"
+      bg="#586b7e"
+      objectbg="#436ed0"
+      opacity="80"
+      disableScrolling="true"
+      name="spinning"
+    ></loader>
     <div class="containerModal">
       <div id="headerContainer">
         <div name="headerTitle"><p>Registar usuario</p></div>
@@ -49,7 +62,7 @@
       </form>
 
       <div name="optionsModal">
-        <button>Registrar</button>
+        <button @click="registraUsuario">Registrar</button>
         <button @click="closeModal">Cerrar</button>
       </div>
     </div>
@@ -57,9 +70,13 @@
 </template>
 
 <script>
+import axios from "axios";
+import { headersadmin, VUE_APP_ADD_USER } from "../store";
+import { loader } from "vue-ui-preloader";
 export default {
   data() {
     return {
+      stateLoading: false,
       val_institucion: "",
       val_nombreCompleto: "",
       val_codigo: "",
@@ -86,6 +103,33 @@ export default {
     closeModal() {
       this.$emit("closeModalRegistrar");
     },
+    async registraUsuario() {
+      let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_APP_ADD_USER;
+      let body = {
+        NombreCompleto: this.val_nombreCompleto,
+        codigo: this.val_codigo,
+        fechaNacimiento: new Date(this.val_fechaNacimiento),
+        edad: this.val_edad,
+        gradoEscolar: this.val_gradoEscolar,
+        estadoSesion: 1,
+        permiso: 0,
+        termino: 0,
+      };
+      this.stateLoading = true;
+      await axios
+        .post(url, body, { headers: headersadmin })
+        .then()
+        .catch((err) => {
+          console.log(err);
+        })
+        .finally(() => {
+          this.stateLoading = false;
+          this.closeModal();
+        });
+    },
+  },
+  components: {
+    loader,
   },
 };
 </script>

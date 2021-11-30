@@ -1,5 +1,18 @@
 <template>
   <div id="wrapperDashboard">
+    <loader
+      v-if="stateLoading"
+      object="#5286ff"
+      color1="#ffffff"
+      color2="#17fd3d"
+      size="12"
+      speed="2.1"
+      bg="#586b7e"
+      objectbg="#436ed0"
+      opacity="80"
+      disableScrolling="true"
+      name="spinning"
+    ></loader>
     <modal-component
       @closeModalRegistrar="modalOptionRegister"
       v-if="modalRegister"
@@ -10,7 +23,7 @@
       v-bind:infoUser="userSelected"
     ></modal-detalles>
     <nav class="options">
-      <button type="option-admin" id="logout">
+      <button type="option-admin" @click="logout" id="logout">
         <svg
           width="34"
           height="36"
@@ -83,10 +96,10 @@
           <tbody>
             <tr v-for="(data, index) in dataUser" v-bind:key="index">
               <td>
-                {{ data.nombre }}
+                {{ data.codigo }}
               </td>
               <td>
-                {{ data.sesionActual }}
+                {{ "Sesion" + data.estadoSesion }}
               </td>
               <td>
                 <button
@@ -133,69 +146,106 @@
 <script>
 import ModalRegistro from "../components/ModalRegistro.vue";
 import ModalDetalles from "../components/ModalInfoUser.vue";
+import { loader } from "vue-ui-preloader";
+import {
+  headersadmin,
+  VUE_APP_LOGOUT_ADMIN,
+  VUE_APP_API_REFRESH,
+  VUE_APP_LIST_USER,
+  timeRefreshToken,
+} from "../store";
+import axios from "axios";
 export default {
   data() {
     return {
       modalRegister: false,
-      modalDetalles: true,
-      dataUser: [
-        {
-          id: 1,
-          nombre: "User1",
-          sesionActual: "Session1",
-        },
-        {
-          id: 2,
-          nombre: "User2",
-          sesionActual: "Session7",
-        },
-        {
-          id: 1,
-          nombre: "User3",
-          sesionActual: "Session4",
-        },
-        {
-          id: 1,
-          nombre: "User3",
-          sesionActual: "Session4",
-        },
-        {
-          id: 1,
-          nombre: "User3",
-          sesionActual: "Session4",
-        },
-        {
-          id: 1,
-          nombre: "User3",
-          sesionActual: "Session4",
-        },
-        {
-          id: 1,
-          nombre: "User3",
-          sesionActual: "Session4",
-        },
-        {
-          id: 1,
-          nombre: "User3",
-          sesionActual: "Session4",
-        },
-        {
-          id: 1,
-          nombre: "User3",
-          sesionActual: "Session4",
-        },
-        {
-          id: 1,
-          nombre: "User3",
-          sesionActual: "Session4",
-        },
-      ],
+      modalDetalles: false,
+      dataUser: [],
       userSelected: null,
+      intervalTimer: null,
+      stateLoading: false,
     };
   },
+  async created() {
+    this.intervalTimer = setInterval(() => timer(), 1000);
+
+    async function timer() {
+      let time = sessionStorage.getItem("timeExpire");
+      if (time == 1) {
+        sessionStorage.setItem("timeExpire", timeRefreshToken);
+        let url = process.env.VUE_APP_API_URL + VUE_APP_API_REFRESH;
+        let body = {
+          token: localStorage.getItem("refreshtokenAdmin"),
+        };
+        await axios
+          .post(url, body)
+          .then((response) => {
+            localStorage.tokenAdmin = response.data.accessToken;
+          })
+          .catch((err) => {
+            switch (err.response.status) {
+              case 503:
+                console.log("error servidor");
+                break;
+              case 403:
+                console.log("token Invalido");
+            }
+          });
+      } else {
+        time = time - 1;
+        sessionStorage.setItem("timeExpire", time);
+      }
+    }
+    let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_APP_LIST_USER;
+    this.stateLoading = true;
+    await axios
+      .get(url, { headers: { "x-access-token": localStorage.tokenAdmin } })
+      .then((response) => {
+        this.dataUser = response.data;
+      })
+      .catch((err) => {
+        switch (err.response.status) {
+          case 503:
+            console.log("error SERVER");
+            break;
+          default:
+            console.log("error interno");
+            break;
+        }
+      })
+      .finally(() => {
+        this.stateLoading = false;
+      });
+  },
   methods: {
+    async updateList() {
+      let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_APP_LIST_USER;
+      this.stateLoading = true;
+      await axios
+        .get(url, { headers: headersadmin })
+        .then((response) => {
+          this.dataUser = response.data;
+        })
+        .catch((err) => {
+          switch (err.response.status) {
+            case 503:
+              console.log("error SERVER");
+              break;
+            default:
+              console.log("error interno");
+              break;
+          }
+        })
+        .finally(() => {
+          this.stateLoading = false;
+        });
+    },
+
     modalOptionRegister() {
       this.modalRegister = !this.modalRegister;
+      if (this.modalRegister == false) {
+        this.updateList();
+      }
     },
     modalOptionDetalles() {
       this.modalDetalles = !this.modalDetalles;
@@ -204,10 +254,34 @@ export default {
       this.userSelected = this.dataUser[index];
       this.modalOptionDetalles();
     },
+    async logout() {
+      let url = process.env.VUE_APP_API_URL + VUE_APP_LOGOUT_ADMIN;
+
+      await axios
+        .delete(url)
+        .then(() => {
+          localStorage.removeItem("tokenAdmin");
+          localStorage.removeItem("refreshtokenAdmin");
+          sessionStorage.removeItem("timeExpire");
+          clearInterval(this.intervalTimer);
+          this.$router.push({
+            path: "/admin",
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+          switch (error.response.status) {
+            case 503:
+              this.noteError = "Error en el servidor";
+              break;
+          }
+        });
+    },
   },
   components: {
     "modal-component": ModalRegistro,
     "modal-detalles": ModalDetalles,
+    loader,
   },
 };
 </script>

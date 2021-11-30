@@ -18,9 +18,8 @@
 
 <script>
 import logoImage from "../components/svg/logoImage.vue";
-import { VUE_APP_LOGIN_ADMIN } from "../store";
+import { VUE_APP_LOGIN_ADMIN, timeRefreshToken } from "../store";
 import axios from "axios";
-import Vue from "vue";
 
 export default {
   data() {
@@ -42,7 +41,13 @@ export default {
       await axios
         .post(url, body)
         .then((response) => {
-          console.log(response.message);
+          localStorage.tokenAdmin = response.data.accessToken;
+          localStorage.refreshtokenAdmin = response.data.refreshToken;
+          this.$router.push({
+            path: "/dashboard",
+          });
+
+          sessionStorage.setItem("timeExpire", timeRefreshToken);
         })
         .catch((error) => {
           switch (error.response.status) {
