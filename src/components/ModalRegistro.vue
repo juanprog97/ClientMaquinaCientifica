@@ -135,6 +135,7 @@ export default {
           estadoSesion: 1,
           permiso: 0,
           termino: 0,
+          institucion: this.val_institucion,
         };
         this.stateLoading = true;
         await axios

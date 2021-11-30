@@ -47,7 +47,7 @@ export default {
             path: "/dashboard",
           });
 
-          sessionStorage.setItem("timeExpire", timeRefreshToken);
+          sessionStorage.timeExpire = timeRefreshToken;
         })
         .catch((error) => {
           switch (error.response.status) {

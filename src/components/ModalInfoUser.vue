@@ -13,27 +13,27 @@
         <span><label>Detalles del usuario</label></span>
         <span>
           <label for="">Nombre de la institución</label>
-          <p>ETC</p>
+          <p>{{ userData.institucion }}</p>
         </span>
         <span>
           <label for="">Nombre completo</label>
-          <p>ETC</p>
+          <p>{{ userData.nombreCompleto }}</p>
         </span>
         <span>
           <label for="">Codigo de usuario</label>
-          <p>ETC</p>
+          <p>{{ userData.codigo }}</p>
         </span>
         <span>
           <label for="">Fecha de Nacimiento:</label>
-          <p>ETC</p>
+          <p>{{ fechaNacimiento }}</p>
         </span>
         <span>
           <label for="">Edad:</label>
-          <p>ETC</p>
+          <p>{{ userData.edad }}</p>
         </span>
         <span>
           <label for="">Grado escolar:</label>
-          <p>ETC</p>
+          <p>{{ userData.gradoEscolar }}</p>
         </span>
       </div>
 
@@ -46,14 +46,43 @@
 </template>
 
 <script>
+import { headersadmin, VUE_INFO_USER } from "../store";
+import axios from "axios";
+import moment from "moment";
 export default {
   props: ["infoUser"],
+  async created() {
+    let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_INFO_USER;
+    let body = {
+      id: this.infoUser.idUsuario,
+    };
+    this.stateLoading = true;
+
+    await axios
+      .post(url, body, {
+        headers: headersadmin,
+      })
+      .then((response) => {
+        console.log(response);
+        this.userData = response.data[0];
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
   data() {
-    return {};
+    return {
+      userData: null,
+    };
   },
   methods: {
     closeModal() {
       this.$emit("closeModalDetalles");
+    },
+  },
+  computed: {
+    fechaNacimiento: function () {
+      return moment(this.userData.fechaNacimiento).format("DD-MM-YYYY");
     },
   },
 };

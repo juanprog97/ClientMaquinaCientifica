@@ -170,32 +170,44 @@ export default {
   async created() {
     this.intervalTimer = setInterval(() => timer(), 1000);
 
+    async function renovateToken() {
+      let url = process.env.VUE_APP_API_URL + VUE_APP_API_REFRESH;
+      let body = {
+        token: localStorage.getItem("refreshtokenAdmin"),
+      };
+      await axios
+        .post(url, body)
+        .then((response) => {
+          localStorage.tokenAdmin = response.data.accessToken;
+        })
+        .catch((err) => {
+          switch (err.response.status) {
+            case 503:
+              console.log("error servidor");
+              break;
+            case 403:
+              console.log("token Invalido");
+          }
+        });
+    }
+
     async function timer() {
-      let time = sessionStorage.getItem("timeExpire");
-      if (time == 1) {
-        sessionStorage.setItem("timeExpire", timeRefreshToken);
-        let url = process.env.VUE_APP_API_URL + VUE_APP_API_REFRESH;
-        let body = {
-          token: localStorage.getItem("refreshtokenAdmin"),
-        };
-        await axios
-          .post(url, body)
-          .then((response) => {
-            localStorage.tokenAdmin = response.data.accessToken;
-          })
-          .catch((err) => {
-            switch (err.response.status) {
-              case 503:
-                console.log("error servidor");
-                break;
-              case 403:
-                console.log("token Invalido");
-            }
-          });
+      if (sessionStorage.getItem("timeExpire")) {
+        let time = sessionStorage.getItem("timeExpire");
+
+        if (time == 1) {
+          sessionStorage.setItem("timeExpire", timeRefreshToken);
+          renovateToken();
+        } else {
+          time = time - 1;
+          sessionStorage.setItem("timeExpire", time);
+        }
       } else {
-        time = time - 1;
-        sessionStorage.setItem("timeExpire", time);
+        renovateToken();
+        sessionStorage.timeExpire = timeRefreshToken;
       }
+
+      return () => clearInterval(this.intervalTimer);
     }
     let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_APP_LIST_USER;
     this.stateLoading = true;
