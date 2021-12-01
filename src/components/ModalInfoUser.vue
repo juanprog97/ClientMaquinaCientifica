@@ -36,11 +36,11 @@
         </span>
         <span>
           <label for="">Nombre completo</label>
-          <p>{{  userData.nombreCompleto  }}</p>
+          <p>{{ userData.nombreCompleto }}</p>
         </span>
         <span>
           <label for="">Codigo de usuario</label>
-          <p>{{ userData.codigo  }}</p>
+          <p>{{ userData.codigo }}</p>
         </span>
         <span>
           <label for="">Fecha de Nacimiento:</label>
@@ -48,11 +48,11 @@
         </span>
         <span>
           <label for="">Edad:</label>
-          <p>{{ userData.edad  }}</p>
+          <p>{{ userData.edad }}</p>
         </span>
         <span>
           <label for="">Grado escolar:</label>
-          <p>{{  userData.gradoEscolar }}</p>
+          <p>{{ userData.gradoEscolar }}</p>
         </span>
       </div>
 
@@ -79,15 +79,14 @@ export default {
   props: ["infoUser"],
   async mounted() {
     let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_INFO_USER;
-    let body = {
+    let params = {
       id: this.infoUser.idUsuario,
+      token: headersadmin["x-access-token"],
     };
     this.stateLoading = true;
 
     await axios
-      .post(url, body, {
-        headers: headersadmin,
-      })
+      .get(url, { params: params })
       .then((response) => {
         this.userData = response.data[0];
         this.permisoJugar = this.userData.permiso == 1 ? true : false;
@@ -157,9 +156,7 @@ export default {
   },
   computed: {
     fechaNacimiento: function () {
-      return moment(
-         this.userData.fechaNacimiento
-      ).format("DD-MM-YYYY");
+      return moment(this.userData.fechaNacimiento).format("DD-MM-YYYY");
     },
     estadoPermisoGuardar: function () {
       return this.permisoJugar ? 1 : 0;

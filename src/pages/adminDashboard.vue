@@ -22,7 +22,6 @@
       v-if="modalDetalles"
       @closeModalDetalles="modalOptionDetalles"
       v-bind:infoUser="userSelected"
-      
     ></modal-detalles>
     <nav class="options">
       <button type="option-admin" @click="logout" id="logout">
@@ -46,8 +45,8 @@
 
       <button type="option-admin" id="donwloadInfo">Descargar info</button>
       <div class="searchUserSection">
-        <input id="inputUser" type="text" />
-        <button id="searchUser">
+        <input id="inputUser" type="text" v-model="userSearch" />
+        <button id="searchUser" @click="searchUser">
           <svg
             width="47"
             height="48"
@@ -101,7 +100,7 @@
                 {{ data.codigo }}
               </td>
               <td>
-                {{ "Sesion" + data.estadoSesion }}
+                {{ "Sesion " + data.estadoSesion }}
               </td>
               <td>
                 <button
@@ -123,7 +122,7 @@
                 </button>
               </td>
               <td>
-                <button type="buttonControl">
+                <button type="buttonControl" @click="deleteUser(index)">
                   <svg
                     fill="#ffff"
                     xmlns="http://www.w3.org/2000/svg"
@@ -155,8 +154,11 @@ import {
   VUE_APP_API_REFRESH,
   VUE_APP_LIST_USER,
   timeRefreshToken,
+  VUE_FILTER_USER,
+  VUE_DELETE_USER,
 } from "../store";
 import axios from "axios";
+import Vue from "vue";
 export default {
   data() {
     return {
@@ -166,6 +168,7 @@ export default {
       userSelected: null,
       intervalTimer: null,
       stateLoading: false,
+      userSearch: "",
     };
   },
   async created() {
@@ -218,7 +221,6 @@ export default {
         this.dataUser = response.data;
       })
       .catch((err) => {
-        console.log(err);
         switch (err.response.status) {
           case 503:
             console.log("error SERVER");
@@ -240,19 +242,18 @@ export default {
         .get(url, { headers: headersadmin })
         .then((response) => {
           this.dataUser = response.data;
+          this.stateLoading = false;
         })
         .catch((err) => {
+          this.stateLoading = false;
           switch (err.response.status) {
             case 503:
-              console.log("error SERVER");
+              console.log("error servidor");
               break;
             default:
               console.log("error interno");
               break;
           }
-        })
-        .finally(() => {
-          this.stateLoading = false;
         });
     },
     usuarioRegistrado() {
@@ -284,12 +285,86 @@ export default {
           });
         })
         .catch((error) => {
-          console.log(error);
           switch (error.response.status) {
             case 503:
               this.noteError = "Error en el servidor";
               break;
           }
+        });
+    },
+    async searchUser() {
+      let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_FILTER_USER;
+      let params = {
+        codigo: this.userSearch,
+        token: headersadmin["x-access-token"],
+      };
+      this.stateLoading = true;
+      axios
+        .get(url, { params: params })
+        .then((response) => {
+          this.dataUser = response.data;
+          this.stateLoading = false;
+        })
+        .catch((err) => {
+          this.stateLoading = false;
+          let status = err.response.status;
+          let message = "";
+          switch (status) {
+            case 503:
+              message = "Error en el servidor";
+              break;
+            default:
+              message = "Hay un error en busqueda";
+              break;
+          }
+          Vue.$confirm({
+            message: message,
+            button: {
+              yes: "Aceptar",
+            },
+          });
+        });
+    },
+    async deleteUser(index) {
+      let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_DELETE_USER;
+      let params = {
+        idUsuario: this.dataUser[index].idUsuario,
+        token: localStorage.tokenAdmin,
+      };
+
+      this.stateLoading = true;
+      axios
+        .delete(url, { params: params })
+        .then(() => {
+          this.stateLoading = false;
+          Vue.$confirm({
+            message: "Se ha eliminado correctamente el usuario",
+            button: {
+              yes: "Aceptar",
+            },
+            callback: () => {
+              this.updateList();
+            },
+          });
+        })
+        .catch((err) => {
+          this.stateLoading = false;
+          let status = err.response.status;
+          let message = "";
+          switch (status) {
+            case 503:
+              message = "Error en el servidor";
+              break;
+            default:
+              message = "Hay un error el proceso de eliminación";
+              break;
+          }
+          Vue.$confirm({
+            message: message,
+            button: {
+              yes: "Aceptar",
+            },
+          });
         });
     },
   },
