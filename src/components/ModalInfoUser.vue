@@ -8,20 +8,39 @@
       <div name="contentModal">
         <span>
           <label for="">Permiso para ingresar</label>
-          <input type="checkbox" />
+          <div class="containerToogle">
+            <button
+              id="buttonSlide"
+              v-bind:class="[
+                permisoJugar ? 'buttonSlideFalse' : 'buttonSlideTrue',
+              ]"
+              @click="
+                () => {
+                  permisoJugar = !permisoJugar;
+                }
+              "
+            ></button>
+            <label style="align-self: flex-end">{{
+              permisoJugar ? "Tiene Permiso" : "No tiene permiso"
+            }}</label>
+          </div>
         </span>
-        <span><label>Detalles del usuario</label></span>
+        <span
+          ><label style="font-size: 1.5em; font-weight: bold"
+            >Detalles del usuario</label
+          ></span
+        >
         <span>
           <label for="">Nombre de la institución</label>
           <p>{{ userData.institucion }}</p>
         </span>
         <span>
           <label for="">Nombre completo</label>
-          <p>{{ userData.nombreCompleto }}</p>
+          <p>{{  userData.nombreCompleto  }}</p>
         </span>
         <span>
           <label for="">Codigo de usuario</label>
-          <p>{{ userData.codigo }}</p>
+          <p>{{ userData.codigo  }}</p>
         </span>
         <span>
           <label for="">Fecha de Nacimiento:</label>
@@ -29,16 +48,21 @@
         </span>
         <span>
           <label for="">Edad:</label>
-          <p>{{ userData.edad }}</p>
+          <p>{{ userData.edad  }}</p>
         </span>
         <span>
           <label for="">Grado escolar:</label>
-          <p>{{ userData.gradoEscolar }}</p>
+          <p>{{  userData.gradoEscolar }}</p>
         </span>
       </div>
 
       <div name="optionsModal">
-        <button>Guardar</button>
+        <button
+          v-if="permisoJugar !== estadoPermisoActual"
+          @click="guardarCambio"
+        >
+          Guardar
+        </button>
         <button @click="closeModal">Cerrar</button>
       </div>
     </div>
@@ -46,12 +70,14 @@
 </template>
 
 <script>
-import { headersadmin, VUE_INFO_USER } from "../store";
+import { headersadmin, VUE_INFO_USER, VUE_CHANGE_PASS } from "../store";
 import axios from "axios";
 import moment from "moment";
+import Vue from "vue";
+
 export default {
   props: ["infoUser"],
-  async created() {
+  async mounted() {
     let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_INFO_USER;
     let body = {
       id: this.infoUser.idUsuario,
@@ -63,26 +89,80 @@ export default {
         headers: headersadmin,
       })
       .then((response) => {
-        console.log(response);
         this.userData = response.data[0];
+        this.permisoJugar = this.userData.permiso == 1 ? true : false;
+        this.estadoPermisoActual = this.userData.permiso == 1 ? true : false;
       })
       .catch((err) => {
         console.log(err);
-      });
+      })
+      .finally(() => {});
   },
   data() {
     return {
       userData: null,
+      permisoJugar: false,
+      estadoPermisoActual: null,
     };
   },
   methods: {
     closeModal() {
       this.$emit("closeModalDetalles");
     },
+    async guardarCambio() {
+      let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_CHANGE_PASS;
+      let body = {
+        id: this.infoUser.idUsuario,
+        permiso: this.estadoPermisoGuardar,
+      };
+      await axios
+        .put(url, body, { headers: headersadmin })
+        .then(() => {
+          Vue.$confirm({
+            message: "Se ha cambiado el permiso de ingreso al usuario",
+            button: {
+              yes: "Aceptar",
+            },
+            callback: () => {
+              this.$emit("closeModalDetalles");
+            },
+          });
+        })
+        .catch((err) => {
+          let status = err.response.status;
+          let message = "";
+          this.stateLoading = false;
+          switch (status) {
+            case 403:
+              message = "Error al momento editar permiso de usuario";
+              break;
+            case 503:
+              message = "Error en el servidor";
+              break;
+            default:
+              message = "Hay un error en la creación";
+              break;
+          }
+          Vue.$confirm({
+            message: message,
+            button: {
+              yes: "Aceptar",
+            },
+            callback: () => {
+              this.$emit("closeModalDetalles");
+            },
+          });
+        });
+    },
   },
   computed: {
     fechaNacimiento: function () {
-      return moment(this.userData.fechaNacimiento).format("DD-MM-YYYY");
+      return moment(
+         this.userData.fechaNacimiento
+      ).format("DD-MM-YYYY");
+    },
+    estadoPermisoGuardar: function () {
+      return this.permisoJugar ? 1 : 0;
     },
   },
 };
@@ -166,6 +246,87 @@ export default {
           margin-bottom: 0.5em;
           font-size: 1.2em;
           margin-left: 0.3em;
+        }
+        input[type="checkbox"] {
+          width: 12px;
+          margin-left: 10px;
+        }
+
+        div.containerToogle {
+          display: -webkit-box;
+          display: -ms-flexbox;
+          display: flex;
+          -webkit-box-orient: horizontal;
+          -webkit-box-direction: normal;
+          -ms-flex-direction: row;
+          flex-direction: row;
+          -webkit-box-align: center;
+          -ms-flex-align: center;
+          align-items: center;
+          -webkit-box-pack: start;
+          -ms-flex-pack: start;
+          justify-content: start;
+          gap: 0.1em;
+
+          #buttonSlide {
+            --width-toogle: 5vw;
+            --space-ofsset-circle: 0.5em;
+            --scale-slide: 0.7;
+            position: relative;
+            width: var(--width-toogle);
+            height: 2em;
+            padding: 1.4em 0em;
+            background-color: var(--colorSelector);
+            border: none;
+            outline: none;
+            -webkit-transform: scale(var(--scale-slide));
+            transform: scale(var(--scale-slide));
+            border-radius: 50px;
+            -moz-border-radius: 50;
+            -webkit-border-radius: 50px;
+            background-color: var(--clr-secondary-redState);
+            &::after {
+              display: block;
+              position: absolute;
+              outline: none;
+              inset: 0%;
+              margin: auto 0;
+              content: "";
+              width: 2em;
+              height: 2em;
+              border-radius: 50%;
+              -moz-border-radius: 50%;
+              -webkit-border-radius: 50%;
+              background-color: #fff;
+            }
+            &.buttonSlideTrue::after {
+              -webkit-transition: -webkit-transform 0.15s ease-in-out;
+              transition: -webkit-transform 0.15s ease-in-out;
+              transition: transform 0.15s ease-in-out;
+              transition: transform 0.15s ease-in-out,
+                -webkit-transform 0.15s ease-in-out;
+              -webkit-transform: translateX(var(--space-ofsset-circle));
+              transform: translateX(var(--space-ofsset-circle));
+            }
+            &.buttonSlideFalse {
+              background-color: var(--clr-secondary-greenState);
+              -webkit-transition: left 0.15s ease-in-out;
+              transition: left 0.15s ease-in-out;
+              &::after {
+                -webkit-transition: -webkit-transform 0.15s ease-in-out;
+                transition: -webkit-transform 0.15s ease-in-out;
+                transition: transform 0.15s ease-in-out;
+                transition: transform 0.15s ease-in-out,
+                  -webkit-transform 0.15s ease-in-out;
+                -webkit-transform: translateX(
+                  calc(var(--width-toogle) - 100% - var(--space-ofsset-circle))
+                );
+                transform: translateX(
+                  calc(var(--width-toogle) - 100% - var(--space-ofsset-circle))
+                );
+              }
+            }
+          }
         }
       }
     }

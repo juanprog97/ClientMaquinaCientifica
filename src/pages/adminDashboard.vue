@@ -22,6 +22,7 @@
       v-if="modalDetalles"
       @closeModalDetalles="modalOptionDetalles"
       v-bind:infoUser="userSelected"
+      
     ></modal-detalles>
     <nav class="options">
       <button type="option-admin" @click="logout" id="logout">

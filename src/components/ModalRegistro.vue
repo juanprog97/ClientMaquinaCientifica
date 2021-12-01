@@ -155,6 +155,7 @@ export default {
           .catch((err) => {
             let status = err.response.status;
             let message = "";
+            this.stateLoading = false;
             switch (status) {
               case 403:
                 message = "Error al momento de crear el usuario";
@@ -207,7 +208,6 @@ export default {
         this.val_fechaNacimiento.length > 0
           ? moment(this.val_fechaNacimiento, "YYYY-MM-DD").toDate()
           : hoy;
-      console.log(cumpleanos);
       var edad = hoy.getFullYear() - cumpleanos.getFullYear();
       console.log(edad);
       var m = hoy.getMonth() - cumpleanos.getMonth();
