@@ -46,6 +46,11 @@
         </span>
 
         <span>
+          <label for="">Edad:</label>
+          <input type="number" min="1" max="100" v-model="val_edad" />
+        </span>
+
+        <span>
           <label for="">Grado escolar:</label>
           <select name="" id="" v-model="val_gradoEscolar">
             <option value="" selected disabled>
@@ -76,9 +81,8 @@
 
 <script>
 import axios from "axios";
-import { headersadmin, VUE_APP_ADD_USER, VUE_APP_TIME } from "../store";
+import { VUE_APP_ADD_USER, VUE_APP_TIME } from "../store";
 import { loader } from "vue-ui-preloader";
-import moment from "moment";
 import Vue from "vue";
 
 export default {
@@ -101,6 +105,7 @@ export default {
       val_codigo: "",
       val_fechaNacimiento: "",
       val_gradoEscolar: "",
+      val_edad: null,
       listGradoEscolares: [
         "Primaria - 1°",
         "Primaria - 2°",
@@ -130,7 +135,7 @@ export default {
           NombreCompleto: this.val_nombreCompleto,
           codigo: this.val_codigo,
           fechaNacimiento: new Date(this.val_fechaNacimiento),
-          edad: this.edadVal,
+          edad: this.val_edad,
           gradoEscolar: this.val_gradoEscolar,
           estadoSesion: 1,
           permiso: 0,
@@ -139,7 +144,9 @@ export default {
         };
         this.stateLoading = true;
         await axios
-          .post(url, body, { headers: headersadmin })
+          .post(url, body, {
+            headers: { "x-access-token": localStorage.getItem("tokenAdmin") },
+          })
           .then(() => {
             this.stateLoading = false;
             Vue.$confirm({
@@ -197,29 +204,14 @@ export default {
         this.errorList.push("El es obligatorio.");
       }
 
+      if (this.val_edad <= 0) {
+        this.errorList.push("La edad debe ser un numero positivo");
+      }
+
       return this.errorList.length > 0 ? false : true;
     },
   },
-  computed: {
-    edadVal: function () {
-      var hoy = moment(this.dateCurrent, "DD-MM-YYYY").toDate();
 
-      var cumpleanos =
-        this.val_fechaNacimiento.length > 0
-          ? moment(this.val_fechaNacimiento, "YYYY-MM-DD").toDate()
-          : hoy;
-      var edad = hoy.getFullYear() - cumpleanos.getFullYear();
-      console.log(edad);
-      var m = hoy.getMonth() - cumpleanos.getMonth();
-      console.log(m);
-      if (m < 0 || (m === 0 && hoy.getDate() < cumpleanos.getDate())) {
-        edad--;
-
-        return edad;
-      }
-      return edad;
-    },
-  },
   components: {
     loader,
   },

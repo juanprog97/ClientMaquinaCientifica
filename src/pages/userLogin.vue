@@ -6,10 +6,18 @@
 
       <form class="loginForm" action="">
         <p for="textUser">Usuario</p>
-        <input id="textUser" type="text" />
+        <input id="textUser" type="text" v-model="user" />
+
+        <p
+          style="color: #800000; font-size: 0.8em"
+          v-for="(error, index) in errorForm"
+          v-bind:key="index"
+        >
+          {{ error }}
+        </p>
       </form>
 
-      <button id="buttonA">Entrar</button>
+      <button id="buttonA" @click="login">Entrar</button>
     </div>
     <button class="infoButton" @click="changeModal">
       <svg
@@ -52,15 +60,59 @@
 <script>
 import logoImage from "../components/svg/logoImage.vue";
 import ModalInfo from "../components/ModalInfo.vue";
+import { VUE_APP_LOGIN_USER, timeRefreshToken } from "../store";
+import axios from "axios";
+
 export default {
   data() {
     return {
       modalInfo: false,
+      errorForm: [],
+      user: "",
     };
   },
   methods: {
     changeModal() {
       this.modalInfo = !this.modalInfo;
+    },
+
+    checkForm() {
+      let checkForm = true;
+
+      if (this.user.length == 0) {
+        checkForm = false;
+        this.errorForm.push("El campo es obligatorio");
+      }
+      return checkForm;
+    },
+    async login() {
+      this.errorForm = [];
+      if (this.checkForm()) {
+        let url = process.env.VUE_APP_API_URL + VUE_APP_LOGIN_USER;
+
+        let body = {
+          codigo: this.user,
+        };
+        await axios
+          .post(url, body)
+          .then((response) => {
+            localStorage.tokenUser = response.data.accessToken;
+            localStorage.tokenRefresh = response.data.refreshToken;
+            this.$router.push({ path: "/usergame" });
+            sessionStorage.timeExpire = timeRefreshToken;
+          })
+          .catch((error) => {
+            switch (error.response.status) {
+              case 403:
+                console.log(error.response.data.message);
+                this.errorForm.push(error.response.data.message);
+                break;
+              case 503:
+                this.errorForm.push("Error en el servidor");
+                break;
+            }
+          });
+      }
     },
   },
   components: {

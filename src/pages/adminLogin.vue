@@ -8,7 +8,13 @@
         <input id="textUser" type="text" v-model="user" />
         <p for="textUser">Contraseña</p>
         <input id="textUser" type="password" v-model="password" />
-        <p style="color: #800000; font-size: 0.8em">{{ noteError }}</p>
+        <p
+          style="color: #800000; font-size: 0.8em"
+          v-for="(error, index) in errorForm"
+          v-bind:key="index"
+        >
+          {{ error }}
+        </p>
       </form>
 
       <button id="buttonA" @click="login">Entrar</button>
@@ -26,40 +32,57 @@ export default {
     return {
       user: "",
       password: "",
-      noteError: "",
+
+      errorForm: [],
     };
   },
 
   methods: {
     async login() {
-      let url = process.env.VUE_APP_API_URL + VUE_APP_LOGIN_ADMIN;
+      this.errorForm = [];
+      if (this.checkForms()) {
+        let url = process.env.VUE_APP_API_URL + VUE_APP_LOGIN_ADMIN;
 
-      let body = {
-        username: this.user,
-        password: this.password,
-      };
-      await axios
-        .post(url, body)
-        .then((response) => {
-          localStorage.tokenAdmin = response.data.accessToken;
-          localStorage.refreshtokenAdmin = response.data.refreshToken;
-          this.$router.push({
-            path: "/dashboard",
+        let body = {
+          username: this.user,
+          password: this.password,
+        };
+        await axios
+          .post(url, body)
+          .then((response) => {
+            localStorage.tokenAdmin = response.data.accessToken;
+            localStorage.refreshtokenAdmin = response.data.refreshToken;
+            this.$router.push({
+              path: "/dashboard",
+            });
+
+            sessionStorage.timeExpire = timeRefreshToken;
+          })
+          .catch((error) => {
+            switch (error.response.status) {
+              case 403:
+                this.errorForm.push("Credenciales incorrectas");
+
+                break;
+
+              case 503:
+                this.errorForm.push("Error en el servidor");
+                break;
+            }
           });
-
-          sessionStorage.timeExpire = timeRefreshToken;
-        })
-        .catch((error) => {
-          switch (error.response.status) {
-            case 403:
-              this.noteError = "Credenciales incorrectas";
-              break;
-
-            case 503:
-              this.noteError = "Error en el servidor";
-              break;
-          }
-        });
+      }
+    },
+    checkForms() {
+      let formsCorrect = true;
+      if (this.user.length == 0) {
+        formsCorrect = false;
+        this.errorForm.push("El campo usuario esta vacio");
+      }
+      if (this.password.length == 0) {
+        formsCorrect = false;
+        this.errorForm.push("El campo de contraseña esta vacio");
+      }
+      return formsCorrect;
     },
   },
   components: {

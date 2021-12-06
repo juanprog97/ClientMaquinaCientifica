@@ -70,30 +70,32 @@
 </template>
 
 <script>
-import { headersadmin, VUE_INFO_USER, VUE_CHANGE_PASS } from "../store";
+import { VUE_INFO_USER, VUE_CHANGE_PASS } from "../store";
 import axios from "axios";
 import moment from "moment";
 import Vue from "vue";
 
 export default {
   props: ["infoUser"],
-  async mounted() {
+  async created() {
     let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_INFO_USER;
     let params = {
       id: this.infoUser.idUsuario,
-      token: headersadmin["x-access-token"],
     };
     this.stateLoading = true;
 
     await axios
-      .get(url, { params: params })
+      .get(url, {
+        params: params,
+        headers: { "x-access-token": localStorage.getItem("tokenAdmin") },
+      })
       .then((response) => {
         this.userData = response.data[0];
         this.permisoJugar = this.userData.permiso == 1 ? true : false;
         this.estadoPermisoActual = this.userData.permiso == 1 ? true : false;
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.response.data);
       })
       .finally(() => {});
   },
@@ -115,7 +117,9 @@ export default {
         permiso: this.estadoPermisoGuardar,
       };
       await axios
-        .put(url, body, { headers: headersadmin })
+        .put(url, body, {
+          headers: { "x-access-token": localStorage.getItem("tokenAdmin") },
+        })
         .then(() => {
           Vue.$confirm({
             message: "Se ha cambiado el permiso de ingreso al usuario",

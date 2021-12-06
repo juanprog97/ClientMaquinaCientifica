@@ -7,25 +7,64 @@ import UserGame from "../pages/userGame.vue";
 import NotFound from "../pages/notFoundPage.vue";
 Vue.use(VueRouter);
 
+function parseJwt(token) {
+  var base64Url = token.split(".")[1];
+  var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  var jsonPayload = decodeURIComponent(
+    Buffer.from(base64, "base64")
+      .toString("ascii")
+      .split("")
+      .map(function (c) {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join("")
+  );
+
+  return JSON.parse(jsonPayload);
+}
+
 const isLoginAdmin = (to, from, next) => {
   if (to.name === "AdminLogin") {
-    if (localStorage.getItem("tokenAdmin") == null) {
-      next();
-      return;
+    console.log(localStorage.tokenAdmin);
+    if (localStorage.tokenAdmin) {
+      const jwtPayload = parseJwt(localStorage.tokenAdmin);
+      if (jwtPayload.exp < Date.now() / 1000) {
+        // token expired
+        localStorage.removeItem("tokenAdmin");
+        localStorage.removeItem("refreshtokenAdmin");
+        sessionStorage.removeItem("timeExpire");
+        next();
+        return;
+      } else {
+        next({
+          path: "/dashboard",
+        });
+        return;
+      }
     } else {
-      next({
-        path: "/dashboard",
-      });
+      next();
       return;
     }
   } else if (to.name === "AdminDashboard") {
-    if (localStorage.getItem("tokenAdmin") == null) {
+    if (localStorage.getItem("tokenAdmin")) {
+      const jwtPayload = parseJwt(localStorage.tokenAdmin);
+      if (jwtPayload.exp < Date.now() / 1000) {
+        // token expired
+        localStorage.removeItem("tokenAdmin");
+        localStorage.removeItem("refreshtokenAdmin");
+        sessionStorage.removeItem("timeExpire");
+        next({
+          path: "/admin",
+        });
+        return;
+      } else {
+        next();
+        return;
+      }
+    } else {
       next({
         path: "/admin",
       });
-      return;
-    } else {
-      next();
       return;
     }
   }

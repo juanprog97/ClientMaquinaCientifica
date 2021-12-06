@@ -149,7 +149,6 @@ import ModalRegistro from "../components/ModalRegistro.vue";
 import ModalDetalles from "../components/ModalInfoUser.vue";
 import { loader } from "vue-ui-preloader";
 import {
-  headersadmin,
   VUE_APP_LOGOUT_ADMIN,
   VUE_APP_API_REFRESH,
   VUE_APP_LIST_USER,
@@ -172,6 +171,12 @@ export default {
     };
   },
   async created() {
+    window.addEventListener("keydown", (e) => {
+      if (e.key == "Enter") {
+        this.searchUser();
+      }
+    });
+
     this.intervalTimer = setInterval(() => timer(), 1000);
 
     async function renovateToken() {
@@ -234,12 +239,15 @@ export default {
         this.stateLoading = false;
       });
   },
+
   methods: {
     async updateList() {
       let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_APP_LIST_USER;
       this.stateLoading = true;
       await axios
-        .get(url, { headers: headersadmin })
+        .get(url, {
+          headers: { "x-access-token": localStorage.getItem("tokenAdmin") },
+        })
         .then((response) => {
           this.dataUser = response.data;
           this.stateLoading = false;
@@ -296,11 +304,13 @@ export default {
       let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_FILTER_USER;
       let params = {
         codigo: this.userSearch,
-        token: headersadmin["x-access-token"],
       };
       this.stateLoading = true;
       axios
-        .get(url, { params: params })
+        .get(url, {
+          params: params,
+          headers: { "x-access-token": localStorage.tokenAdmin },
+        })
         .then((response) => {
           this.dataUser = response.data;
           this.stateLoading = false;
@@ -309,6 +319,7 @@ export default {
           this.stateLoading = false;
           let status = err.response.status;
           let message = "";
+          console.log(err.response.data);
           switch (status) {
             case 503:
               message = "Error en el servidor";
