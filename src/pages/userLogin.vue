@@ -97,14 +97,14 @@ export default {
           .post(url, body)
           .then((response) => {
             localStorage.tokenUser = response.data.accessToken;
-            localStorage.tokenRefresh = response.data.refreshToken;
+            localStorage.tokenRefreshUser = response.data.refreshToken;
+            localStorage.idUser = response.data.idUser;
             this.$router.push({ path: "/usergame" });
-            sessionStorage.timeExpire = timeRefreshToken;
+            sessionStorage.timeExpireUser = timeRefreshToken;
           })
           .catch((error) => {
             switch (error.response.status) {
               case 403:
-                console.log(error.response.data.message);
                 this.errorForm.push(error.response.data.message);
                 break;
               case 503:

@@ -171,7 +171,7 @@ export default {
     };
   },
   async created() {
-    window.addEventListener("keydown", (e) => {
+    let eventListenerKey = window.addEventListener("keydown", (e) => {
       if (e.key == "Enter") {
         this.searchUser();
       }
@@ -216,7 +216,10 @@ export default {
         sessionStorage.timeExpire = timeRefreshToken;
       }
 
-      return () => clearInterval(this.intervalTimer);
+      return () => {
+        clearInterval(this.intervalTimer);
+        document.removeEventListener("keydown", eventListenerKey, true);
+      };
     }
     let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_APP_LIST_USER;
     this.stateLoading = true;

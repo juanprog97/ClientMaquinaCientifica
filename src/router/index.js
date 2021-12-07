@@ -25,7 +25,6 @@ function parseJwt(token) {
 
 const isLoginAdmin = (to, from, next) => {
   if (to.name === "AdminLogin") {
-    console.log(localStorage.tokenAdmin);
     if (localStorage.tokenAdmin) {
       const jwtPayload = parseJwt(localStorage.tokenAdmin);
       if (jwtPayload.exp < Date.now() / 1000) {
@@ -72,23 +71,41 @@ const isLoginAdmin = (to, from, next) => {
 
 const isLoginUser = (to, from, next) => {
   if (to.name === "UserLogin") {
-    if (localStorage.getItem("tokenUser") == null) {
-      next();
-      return;
+    if (localStorage.getItem("tokenUser")) {
+      const jwtPayloadUser = parseJwt(localStorage.tokenUser);
+      if (jwtPayloadUser.exp < Date.now() / 1000) {
+        localStorage.removeItem("tokenUser");
+        localStorage.removeItem("tokenRefreshUser");
+        sessionStorage.removeItem("timeExpireUser");
+        next();
+        return;
+      } else {
+        next({
+          path: "/usergame",
+        });
+        return;
+      }
     } else {
-      next({
-        path: "/usergame",
-      });
+      next();
       return;
     }
   } else if (to.name === "UserGame") {
-    if (localStorage.getItem("tokenUser") == null) {
+    if (localStorage.getItem("tokenUser")) {
+      const jwtPayloadUser = parseJwt(localStorage.tokenUser);
+      if (jwtPayloadUser.exp < Date.now() / 1000) {
+        localStorage.removeItem("tokenUser");
+        localStorage.removeItem("tokenRefreshUser");
+        sessionStorage.removeItem("timeExpireUser");
+        next({ path: "/" });
+        return;
+      } else {
+        next();
+        return;
+      }
+    } else {
       next({
         path: "/",
       });
-      return;
-    } else {
-      next();
       return;
     }
   }
