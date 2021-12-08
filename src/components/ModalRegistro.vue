@@ -165,7 +165,7 @@ export default {
             this.stateLoading = false;
             switch (status) {
               case 403:
-                message = "Error al momento de crear el usuario";
+                message = err.response.data.message;
                 break;
               default:
                 message = "Hay un error en la creación";

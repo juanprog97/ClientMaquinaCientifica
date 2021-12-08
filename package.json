@@ -18,7 +18,9 @@
     "vue-notification": "^1.3.20",
     "vue-router": "^3.5.3",
     "vue-ui-preloader": "^1.2.1",
-    "vuex": "^3.6.2"
+    "vue-unity-webgl": "^1.2.0",
+    "vuex": "^3.6.2",
+    "wasm-loader": "^1.3.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

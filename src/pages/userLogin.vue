@@ -99,8 +99,10 @@ export default {
             localStorage.tokenUser = response.data.accessToken;
             localStorage.tokenRefreshUser = response.data.refreshToken;
             localStorage.idUser = response.data.idUser;
+
             this.$router.push({ path: "/usergame" });
             sessionStorage.timeExpireUser = timeRefreshToken;
+            sessionStorage.skipTutorial = false;
           })
           .catch((error) => {
             switch (error.response.status) {

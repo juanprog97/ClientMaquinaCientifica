@@ -5,6 +5,7 @@ import LoginUser from "../pages/userLogin.vue";
 import AdminDashboard from "../pages/adminDashboard.vue";
 import UserGame from "../pages/userGame.vue";
 import NotFound from "../pages/notFoundPage.vue";
+
 Vue.use(VueRouter);
 
 function parseJwt(token) {
@@ -122,7 +123,7 @@ const router = new VueRouter({
       beforeEnter: isLoginUser,
     },
     {
-      path: "/usergame",
+      path: "/usergame/",
       name: "UserGame",
       component: UserGame,
       beforeEnter: isLoginUser,

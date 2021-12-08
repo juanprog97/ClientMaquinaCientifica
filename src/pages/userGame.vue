@@ -20,17 +20,26 @@
         </svg>
       </button>
     </nav>
-    <video
-      width="1024"
-      height="520"
-      id="videoTutorial"
-      controls
-      autoplay
-      loop="true"
-    >
-      <source v-bind:src="srcVideo" />
-      Your browser does not support the video tag.
-    </video>
+    <template v-if="skipVid == false">
+      <div class="cointainerVideo">
+        <label for="">Video tutorial </label>
+        <video
+          width="1024"
+          height="520"
+          id="videoTutorial"
+          controls
+          autoplay
+          loop="true"
+        >
+          <source v-bind:src="srcVideo" />
+          Your browser does not support the video tag.
+        </video>
+        <button type="buttonStyle" @click="skipVideoFunction">
+          Saltar Video
+        </button>
+      </div>
+    </template>
+    <UnityGame v-if="skipVid" />
   </div>
 </template>
 
@@ -40,10 +49,16 @@ import {
   timeRefreshToken,
   VUE_APP_LOGOUT_USER,
 } from "../store";
-
+import UnityGame from "../components/UnityGame.vue";
 import axios from "axios";
 
 export default {
+  data() {
+    return {
+      srcVideo: "./TutorialVideoGame.mp4",
+      skipVid: sessionStorage.getItem("skipTutorial") === "true" ? true : false,
+    };
+  },
   async created() {
     this.intervalTimer = setInterval(() => timer(), 1000);
 
@@ -88,11 +103,7 @@ export default {
       return () => clearInterval(this.intervalTimer);
     }
   },
-  data() {
-    return {
-      srcVideo: "./TutorialVideoGame.mp4",
-    };
-  },
+
   methods: {
     async logout() {
       let url = process.env.VUE_APP_API_URL + VUE_APP_LOGOUT_USER;
@@ -106,6 +117,7 @@ export default {
           localStorage.removeItem("tokenUser");
           localStorage.removeItem("tokenRefreshUser");
           sessionStorage.removeItem("timeExpireUser");
+          sessionStorage.removeItem("skipTutorial");
           clearInterval(this.intervalTimer);
           this.$router.push({
             path: "/",
@@ -120,35 +132,61 @@ export default {
           }
         });
     },
+    skipVideoFunction() {
+      sessionStorage.setItem("skipTutorial", true);
+      this.skipVid = sessionStorage.skipTutorial === "true" ? true : false;
+    },
+  },
+  components: {
+    UnityGame,
   },
 };
 </script>
 
 <style lang="scss" scoped>
+button[type="buttonStyle"] {
+  background-color: var(--clr-primary-color-800);
+  outline: none;
+  border: none;
+  border-radius: 1em/50%;
+  width: fit-content;
+  color: var(--clr-secondary-white);
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 0.8em;
+  box-shadow: 0px 4px 0px 1px var(--clr-primary-color-700);
+  transition: 0.15s ease-in background-color;
+  cursor: pointer;
+  &:active {
+    transition: 0.15s ease-out background-color;
+    background-color: var(--clr-primary-color-700);
+  }
+}
 #wrapperDashUser {
   nav {
     display: flex;
 
     padding: 1em;
     justify-content: flex-start;
-
-    button[type="buttonStyle"] {
-      background-color: var(--clr-primary-color-800);
-      outline: none;
-      border: none;
-      border-radius: 1em/50%;
-      width: fit-content;
-      color: var(--clr-secondary-white);
-      font-size: 1.2em;
-      cursor: pointer;
-      padding: 0.8em;
-      box-shadow: 0px 4px 0px 1px var(--clr-primary-color-700);
-      transition: 0.15s ease-in background-color;
-      cursor: pointer;
-      &:active {
-        transition: 0.15s ease-out background-color;
-        background-color: var(--clr-primary-color-700);
-      }
+  }
+  .cointainerVideo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    & > * {
+      padding: 1em 0em;
+    }
+    label {
+      font-size: 1.5em;
+      color: white;
+      background-color: var(--clr-primary-color-700);
+      padding: 1em;
+      border-radius: 1em;
+    }
+    button {
+      padding: 1em;
     }
   }
 }
