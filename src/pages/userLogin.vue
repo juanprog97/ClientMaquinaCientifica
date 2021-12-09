@@ -98,7 +98,10 @@ export default {
           .then((response) => {
             localStorage.tokenUser = response.data.accessToken;
             localStorage.tokenRefreshUser = response.data.refreshToken;
-            localStorage.idUser = response.data.idUser;
+            localStorage.user = JSON.stringify({
+              idUser: response.data.idUser,
+              session: response.data.sesion,
+            });
 
             this.$router.push({ path: "/usergame" });
             sessionStorage.timeExpireUser = timeRefreshToken;

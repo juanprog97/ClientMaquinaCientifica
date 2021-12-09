@@ -66,7 +66,7 @@ export default {
       let url = process.env.VUE_APP_API_URL + VUE_APP_API_REFRESH_USER;
       let body = {
         token: localStorage.getItem("tokenRefreshUser"),
-        idUser: localStorage.idUser,
+        idUser: JSON.parse(localStorage.user).idUser,
       };
       await axios
         .post(url, body)
@@ -116,7 +116,7 @@ export default {
 
       await axios
         .delete(url, {
-          params: { idUsuario: localStorage.getItem("idUser") },
+          params: { idUsuario: JSON.parse(localStorage.user).idUser },
           headers: { "x-access-token": localStorage.tokenUser },
         })
         .then(() => {
