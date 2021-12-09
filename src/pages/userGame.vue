@@ -82,6 +82,12 @@ export default {
               console.log("token Invalido");
               break;
           }
+        })
+        .finally(() => {
+          let event = new CustomEvent("changeToken", {
+            detail: "When token was renovate",
+          });
+          document.dispatchEvent(event);
         });
     }
 

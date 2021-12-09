@@ -28,7 +28,7 @@
         id="unity-fullscreen-button"
         :style="{ background: backgroundFullScreen + 'no-repeat center' }"
       ></div>
-      <div id="unity-build-title">MaquinaCientifica</div>
+      <div id="unity-build-title">Maquina Cientifica</div>
     </div>
   </div>
 </template>
@@ -42,16 +42,28 @@ export default {
       backgroundProgressFull: `url(${require("@/assets/TemplateData/progress-bar-full-dark.png")})`,
       backgroundWebGlLogo: `url(${require("@/assets/TemplateData/webgl-logo.png")})`,
       backgroundFullScreen: `url(${require("@/assets/TemplateData/fullscreen-button.png")})`,
+      instanceUnity: null,
     };
   },
-  //   methods: {
-  //     onClick() {
-  //       //this.$refs.myInstance.message("object", "method", "param");
-  //     },
-  //   },
+  methods: {
+    onClick() {
+      //this.$refs.myInstance.message("object", "method", "param");
+    },
+    refreshToken() {
+      this.instanceUnity.SendMessage(
+        "DataUserProfile",
+        "refreshToken",
+        localStorage.getItem("tokenUser")
+      );
+    },
+  },
 
   mounted() {
     this.$nextTick(() => {
+      var eventTokenRefresh = document.addEventListener("changeToken", () => {
+        this.refreshToken();
+      });
+
       var loaderUrl = "/Build/distJuego.loader.js";
       // var loaderUrl = "./static/Build/distJuego.loader.js";
       var config = {
@@ -69,8 +81,6 @@ export default {
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
       var mobileWarning = document.querySelector("#unity-mobile-warning");
-
-      console.log(canvas);
       // By default Unity keeps WebGL canvas render target size matched with
       // the DOM size of the canvas element (scaled by window.devicePixelRatio)
       // Set this to false if you want to decouple this synchronization from
@@ -95,7 +105,6 @@ export default {
 
       var script = document.createElement("script");
       script.src = loaderUrl;
-      console.log(loaderUrl);
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
@@ -105,12 +114,23 @@ export default {
             fullscreenButton.onclick = () => {
               unityInstance.SetFullscreen(1);
             };
+            console.log(unityInstance);
+            this.instanceUnity = unityInstance;
+            this.instanceUnity.SendMessage(
+              "DataUserProfile",
+              "refreshToken",
+              localStorage.getItem("tokenUser")
+            );
           })
           .catch((message) => {
             alert(message);
           });
       };
       document.body.appendChild(script);
+
+      return () => {
+        document.removeEventListener(eventTokenRefresh);
+      };
     });
   },
 };
