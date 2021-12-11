@@ -101,6 +101,8 @@ export default {
             localStorage.user = JSON.stringify({
               idUser: response.data.idUser,
               session: response.data.sesion,
+              pretest: response.data.pretest,
+              postest: response.data.postest,
             });
 
             this.$router.push({ path: "/usergame" });

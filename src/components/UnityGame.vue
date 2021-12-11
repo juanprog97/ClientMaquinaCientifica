@@ -131,6 +131,8 @@ export default {
               var dataUser = {
                 idUser: res.idUser,
                 session: res.session,
+                pretest: res.pretest,
+                protest: res.protest,
               };
               this.instanceUnity.SendMessage(
                 "DataUserProfile",
