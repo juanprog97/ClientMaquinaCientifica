@@ -1,7 +1,7 @@
 <template>
   <div id="wrapperDashUser">
     <nav>
-      <button type="buttonStyle" @click="logout">
+      <!-- <button type="buttonStyle" @click="logout">
         <svg
           width="34"
           height="36"
@@ -18,7 +18,7 @@
             fill="white"
           />
         </svg>
-      </button>
+      </button> -->
     </nav>
     <template v-if="skipVid == false">
       <div class="cointainerVideo">
@@ -39,7 +39,7 @@
         </button>
       </div>
     </template>
-    <UnityGame v-if="skipVid" />
+    <UnityGame v-if="skipVid" @logoutUser="logout" />
   </div>
 </template>
 

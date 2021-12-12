@@ -126,7 +126,7 @@ export default {
                 "refreshToken",
                 localStorage.getItem("tokenUser")
               );
-              console.log(localStorage.user);
+
               let res = JSON.parse(localStorage.user);
               var dataUser = {
                 idUser: res.idUser,
