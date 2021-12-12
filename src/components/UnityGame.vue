@@ -64,6 +64,10 @@ export default {
         this.refreshToken();
       });
 
+      var closeGame = document.addEventListener("exitGame", () => {
+        this.$emit("logoutUser");
+      });
+
       try {
         var loaderUrl = "/Build/distJuego.loader.js";
         // var loaderUrl = "./static/Build/distJuego.loader.js";
@@ -151,6 +155,7 @@ export default {
 
       return () => {
         document.removeEventListener(eventTokenRefresh);
+        document.removeEventListener(closeGame);
       };
     });
   },

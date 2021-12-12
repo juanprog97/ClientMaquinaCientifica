@@ -120,14 +120,17 @@ export default {
           headers: { "x-access-token": localStorage.tokenUser },
         })
         .then(() => {
-          localStorage.removeItem("tokenUser");
+          localStorage.removeItem("user");
           localStorage.removeItem("tokenRefreshUser");
+          localStorage.removeItem("tokenUser");
           sessionStorage.removeItem("timeExpireUser");
           sessionStorage.removeItem("skipTutorial");
           clearInterval(this.intervalTimer);
-          this.$router.push({
-            path: "/",
-          });
+          this.$router.go(0);
+
+          // this.$router.redirect({
+          //   path: "/",
+          // });
         })
         .catch((error) => {
           console.log(error.response.data);
