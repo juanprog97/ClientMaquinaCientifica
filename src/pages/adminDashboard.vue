@@ -304,19 +304,27 @@ export default {
       this.updateList();
     },
     modalOptionRegister() {
-      const jwtPayloadUser = this.parseJwt(localStorage.tokenUser);
-      if (jwtPayloadUser.exp < Date.now() / 1000) {
+      try {
+        const jwtPayloadUser = this.parseJwt(localStorage.tokenAdmin);
+        if (jwtPayloadUser.exp < Date.now() / 1000) {
+          this.$router.go(0);
+        }
+
+        this.modalRegister = !this.modalRegister;
+      } catch (error) {
         this.$router.go(0);
       }
-
-      this.modalRegister = !this.modalRegister;
     },
     modalOptionDetalles() {
-      const jwtPayloadUser = this.parseJwt(localStorage.tokenUser);
-      if (jwtPayloadUser.exp < Date.now() / 1000) {
+      try {
+        const jwtPayloadUser = this.parseJwt(localStorage.tokenAdmin);
+        if (jwtPayloadUser.exp < Date.now() / 1000) {
+          this.$router.go(0);
+        }
+        this.modalDetalles = !this.modalDetalles;
+      } catch (err) {
         this.$router.go(0);
       }
-      this.modalDetalles = !this.modalDetalles;
     },
     selectedUser(index) {
       this.userSelected = this.dataUser[index];

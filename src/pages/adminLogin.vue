@@ -37,6 +37,16 @@ export default {
     };
   },
 
+  async created() {
+    let eventListenerKey = window.addEventListener("keypress", (e) => {
+      if (e.key == "Enter") {
+        document.getElementById("buttonA").click();
+        e.preventDefault();
+      }
+    });
+    return () => window.removeEventListener(eventListenerKey);
+  },
+
   methods: {
     async login() {
       this.errorForm = [];
