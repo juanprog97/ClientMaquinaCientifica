@@ -43,7 +43,9 @@
         </svg>
       </button>
 
-      <button type="option-admin" id="donwloadInfo">Descargar info</button>
+      <button type="option-admin" id="donwloadInfo" @click="downloadData">
+        Descargar info
+      </button>
       <div class="searchUserSection">
         <input id="inputUser" type="text" v-model="userSearch" />
         <button id="searchUser" @click="searchUser">
@@ -155,9 +157,11 @@ import {
   timeRefreshToken,
   VUE_FILTER_USER,
   VUE_DELETE_USER,
+  VUE_DONWLOAD_DATA,
 } from "../store";
 import axios from "axios";
 import Vue from "vue";
+import { saveAs } from "file-saver";
 export default {
   data() {
     return {
@@ -244,6 +248,34 @@ export default {
   },
 
   methods: {
+    async downloadData(event) {
+      event.preventDefault();
+      let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_DONWLOAD_DATA;
+      await axios({ url: url, method: "GET", responseType: "blob" }).then(
+        (response) => {
+          var file = window.URL.createObjectURL(new Blob([response.data]), {
+            type: "text/xml",
+          });
+          saveAs(file, "DatosEjemplos.xlsx");
+        }
+      );
+    },
+    parseJwt(token) {
+      var base64Url = token.split(".")[1];
+      var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      var jsonPayload = decodeURIComponent(
+        Buffer.from(base64, "base64")
+          .toString("ascii")
+          .split("")
+          .map(function (c) {
+            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join("")
+      );
+
+      return JSON.parse(jsonPayload);
+    },
+
     async updateList() {
       let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_APP_LIST_USER;
       this.stateLoading = true;
@@ -272,9 +304,18 @@ export default {
       this.updateList();
     },
     modalOptionRegister() {
+      const jwtPayloadUser = this.parseJwt(localStorage.tokenUser);
+      if (jwtPayloadUser.exp < Date.now() / 1000) {
+        this.$router.go(0);
+      }
+
       this.modalRegister = !this.modalRegister;
     },
     modalOptionDetalles() {
+      const jwtPayloadUser = this.parseJwt(localStorage.tokenUser);
+      if (jwtPayloadUser.exp < Date.now() / 1000) {
+        this.$router.go(0);
+      }
       this.modalDetalles = !this.modalDetalles;
     },
     selectedUser(index) {
@@ -324,6 +365,9 @@ export default {
           let message = "";
           console.log(err.response.data);
           switch (status) {
+            case 401:
+              this.$router.go(0);
+              break;
             case 503:
               message = "Error en el servidor";
               break;
@@ -366,6 +410,9 @@ export default {
           let status = err.response.status;
           let message = "";
           switch (status) {
+            case 401:
+              this.$router.go(0);
+              break;
             case 503:
               message = "Error en el servidor";
               break;

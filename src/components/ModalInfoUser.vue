@@ -95,6 +95,11 @@ export default {
         this.estadoPermisoActual = this.userData.permiso == 1 ? true : false;
       })
       .catch((err) => {
+        switch (err.response.status) {
+          case 401:
+            this.$router.go(0);
+            break;
+        }
         console.log(err.response.data);
       })
       .finally(() => {});
