@@ -83,6 +83,13 @@
       >
         Crear usuario
       </button>
+      <button
+        type="option-admin"
+        id="crearUsuarioButton"
+        @click="downloadBackup"
+      >
+        Crear respaldo
+      </button>
     </nav>
     <div class="containerTable">
       <table class="headerTable" cellspacing="0" cellpadding="">
@@ -158,6 +165,7 @@ import {
   VUE_FILTER_USER,
   VUE_DELETE_USER,
   VUE_DONWLOAD_DATA,
+  VUE_DOWNLOAD_BACKUP,
 } from "../store";
 import axios from "axios";
 import Vue from "vue";
@@ -248,17 +256,38 @@ export default {
   },
 
   methods: {
+    async downloadBackup(event) {
+      event.preventDefault();
+      this.verifyedToken();
+      let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_DOWNLOAD_BACKUP;
+      await axios({
+        url: url,
+        method: "GET",
+        headers: { "x-access-token": localStorage.getItem("tokenAdmin") },
+        responseType: "blob",
+      }).then((response) => {
+        console.log(response.data);
+        var file = window.URL.createObjectURL(new Blob([response.data]), {
+          type: "application/sql;charset=utf-8;",
+        });
+        saveAs(file, "backup.sql");
+      });
+    },
     async downloadData(event) {
       event.preventDefault();
+      this.verifyedToken();
       let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_DONWLOAD_DATA;
-      await axios({ url: url, method: "GET", responseType: "blob" }).then(
-        (response) => {
-          var file = window.URL.createObjectURL(new Blob([response.data]), {
-            type: "text/xml",
-          });
-          saveAs(file, "DatosEjemplos.xlsx");
-        }
-      );
+      await axios({
+        url: url,
+        method: "GET",
+        headers: { "x-access-token": localStorage.getItem("tokenAdmin") },
+        responseType: "blob",
+      }).then((response) => {
+        var file = window.URL.createObjectURL(new Blob([response.data]), {
+          type: "text/xml",
+        });
+        saveAs(file, "resultados.xlsx");
+      });
     },
     parseJwt(token) {
       var base64Url = token.split(".")[1];
@@ -303,6 +332,13 @@ export default {
       this.modalOptionRegister();
       this.updateList();
     },
+    verifyedToken() {
+      const jwtPayloadUser = this.parseJwt(localStorage.tokenAdmin);
+      if (jwtPayloadUser.exp < Date.now() / 1000) {
+        this.$router.go(0);
+      }
+    },
+
     modalOptionRegister() {
       try {
         const jwtPayloadUser = this.parseJwt(localStorage.tokenAdmin);

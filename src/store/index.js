@@ -26,3 +26,4 @@ export const VUE_CHANGE_PASS = "api/admin/permiso";
 export const VUE_FILTER_USER = "api/admin/buscar";
 export const VUE_DELETE_USER = "api/admin/eliminar";
 export const VUE_DONWLOAD_DATA = "api/admin/downloadData";
+export const VUE_DOWNLOAD_BACKUP = "api/admin/downloadBackup";
