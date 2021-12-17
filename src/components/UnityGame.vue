@@ -57,8 +57,7 @@ export default {
       );
     },
   },
-
-  mounted() {
+  activated() {
     this.$nextTick(() => {
       var eventTokenRefresh = document.addEventListener("changeToken", () => {
         this.refreshToken();
@@ -67,7 +66,14 @@ export default {
       var closeGame = document.addEventListener("exitGame", () => {
         this.$emit("logoutUser");
       });
-
+      return () => {
+        document.removeEventListener(eventTokenRefresh);
+        document.removeEventListener(closeGame);
+      };
+    });
+  },
+  created() {
+    this.$nextTick(() => {
       try {
         var loaderUrl = "/Build/distJuego.loader.js";
         // var loaderUrl = "./static/Build/distJuego.loader.js";
@@ -115,48 +121,47 @@ export default {
         var script = document.createElement("script");
         script.src = loaderUrl;
         script.onload = () => {
-          createUnityInstance(canvas, config, (progress) => {
-            progressBarFull.style.width = 100 * progress + "%";
-          })
-            .then((unityInstance) => {
-              loadingBar.style.display = "none";
-              fullscreenButton.onclick = () => {
-                unityInstance.SetFullscreen(1);
-              };
-
-              this.instanceUnity = unityInstance;
-              this.instanceUnity.SendMessage(
-                "DataUserProfile",
-                "refreshToken",
-                localStorage.getItem("tokenUser")
-              );
-
-              let res = JSON.parse(localStorage.user);
-              var dataUser = {
-                idUser: res.idUser,
-                session: res.session,
-                pretest: res.pretest,
-                protest: res.protest,
-              };
-              this.instanceUnity.SendMessage(
-                "DataUserProfile",
-                "verifiedUser",
-                JSON.stringify(dataUser)
-              );
+          try {
+            createUnityInstance(canvas, config, (progress) => {
+              progressBarFull.style.width = 100 * progress + "%";
             })
-            .catch((message) => {
-              alert(message);
-            });
+              .then((unityInstance) => {
+                loadingBar.style.display = "none";
+                fullscreenButton.onclick = () => {
+                  unityInstance.SetFullscreen(1);
+                };
+
+                this.instanceUnity = unityInstance;
+                this.instanceUnity.SendMessage(
+                  "DataUserProfile",
+                  "refreshToken",
+                  localStorage.getItem("tokenUser")
+                );
+
+                let res = JSON.parse(localStorage.user);
+                var dataUser = {
+                  idUser: res.idUser,
+                  session: res.session,
+                  pretest: res.pretest,
+                  protest: res.protest,
+                };
+                this.instanceUnity.SendMessage(
+                  "DataUserProfile",
+                  "verifiedUser",
+                  JSON.stringify(dataUser)
+                );
+              })
+              .catch((message) => {
+                alert(message);
+              });
+          } catch (err) {
+            console.log(err);
+          }
         };
         document.body.appendChild(script);
       } catch (e) {
         console.log(e);
       }
-
-      return () => {
-        document.removeEventListener(eventTokenRefresh);
-        document.removeEventListener(closeGame);
-      };
     });
   },
 };

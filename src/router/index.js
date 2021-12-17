@@ -5,6 +5,9 @@ import LoginUser from "../pages/userLogin.vue";
 import AdminDashboard from "../pages/adminDashboard.vue";
 import UserGame from "../pages/userGame.vue";
 import NotFound from "../pages/notFoundPage.vue";
+import LoadScript from "vue-plugin-load-script";
+
+Vue.use(LoadScript);
 
 Vue.use(VueRouter);
 
