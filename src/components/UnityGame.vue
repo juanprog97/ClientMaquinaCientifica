@@ -57,7 +57,7 @@ export default {
       );
     },
   },
-  activated() {
+  mounted() {
     this.$nextTick(() => {
       var eventTokenRefresh = document.addEventListener("changeToken", () => {
         this.refreshToken();
