@@ -21,8 +21,10 @@
       </button> -->
     </nav>
     <template v-if="skipVid == false">
+      <p>Hacer Click para ver el</p>
+      <a target="_blank" href="https://youtu.be/23mvmObMO0I">video</a>
       <div class="cointainerVideo">
-        <label for="">Video tutorial </label>
+        <!-- <label for="">Video tutorial </label>
         <video
           width="1024"
           height="520"
@@ -33,7 +35,7 @@
         >
           <source v-bind:src="srcVideo" />
           Your browser does not support the video tag.
-        </video>
+        </video> -->
         <button type="buttonStyle" @click="skipVideoFunction">
           Saltar Video
         </button>

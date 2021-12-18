@@ -84,6 +84,7 @@ import axios from "axios";
 import { VUE_APP_ADD_USER, VUE_APP_TIME } from "../store";
 import { loader } from "vue-ui-preloader";
 import Vue from "vue";
+import moment from "moment";
 
 export default {
   async mounted() {
@@ -129,12 +130,13 @@ export default {
       this.$emit("closeModalRegistrar");
     },
     async registraUsuario(event) {
+      let newDate = moment.utc(this.val_fechaNacimiento).format("YYYY-DD-MM");
       if (this.checkForm()) {
         let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_APP_ADD_USER;
         let body = {
           NombreCompleto: this.val_nombreCompleto,
           codigo: this.val_codigo,
-          fechaNacimiento: new Date(this.val_fechaNacimiento),
+          fechaNacimiento: newDate,
           edad: this.val_edad,
           gradoEscolar: this.val_gradoEscolar,
           estadoSesion: 1,
