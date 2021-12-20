@@ -130,7 +130,7 @@ export default {
       this.$emit("closeModalRegistrar");
     },
     async registraUsuario(event) {
-      let newDate = moment.utc(this.val_fechaNacimiento).format("YYYY-MM-YYYY");
+      let newDate = moment.utc(this.val_fechaNacimiento).format("YYYY-MM-DD");
       if (this.checkForm()) {
         let url = process.env.VUE_APP_API_URL_DATAUSER + VUE_APP_ADD_USER;
         let body = {
